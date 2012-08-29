@@ -1,0 +1,255 @@
+#!/bin/bash
+#
+#==============================================================================#
+#
+# FilmsWeb: script que se encarga de la correcta transformación de una Base
+# de datos de Cine que sigue el patrón establecido por la BD del ejemplo
+# en una web con individualización de páginas para cada una d las entradas
+# de la hoja de datos.
+#        Ej. Id;Título;DivX(Boolean);NumCd's;MiniPeli(Boolean);Género;
+# Director;Año;Actor Prin;Actriz Prin;Actor Sec;Actriz Sec;
+# Fotografia;Prestado(Boolean);Deudor
+#
+# Desarrollador: {Trunks} (Javier Carranza) (trunks@canal21.es)
+#
+#==============================================================================#
+#
+
+	# Presentación por terminal de los datos del script
+echo
+echo -e "                \033[44m\033[33m\033[1mFilmWeb script v0.1 ( 7 Agosto 2001 )\033[m"
+echo -e "   \033[44m\033[33m\033[1mDesarrollado por {Trunks}. Envía los informes d errores al autor\033[m"
+echo -e "                       \033[44m\033[33m\033[1ma \033[31mtrunks@canal21.com\033[m"
+echo
+echo
+
+	# Selección de banderas
+
+case $1 in
+        --help|-h)
+	echo -e "\033[1mModo de empleo: filmweb [-h --verion --help --licence] archivo\033[m"
+	echo 
+        exit 1;;
+
+        --version)
+        exit 1;;
+
+        --licence)
+        lynx http://lucas.hispalinux.es/Otros/gples/gples.html:80;
+        exit 1;;
+
+        -*)
+        echo -e "\033[1mNo es un parámetro válido. Para más información filmweb --help\033[m";
+        echo;
+        exit 1;;
+esac
+
+	# Anulación de banderas incorrectas	
+
+if [ $# = "0" ]
+then
+        echo -e "\033[1mModo de empleo: filmweb [-h --verion --help --licence] archivo\033[m"
+        echo
+        exit 1
+else 
+	echo -e "  \033[31m\033[1mEspere mientras se lleva a cabo la fase de exportación...\033[m"
+        echo
+fi
+
+	# Si no existe la carpeta en la que vamos a ubicar la web, la creamos
+
+if ! test -d ~/divx; then mkdir ~/divx; fi 
+
+	# Comenzamos a escribir el código HTML para la Página Índice, le 
+	# damos formato y añadimos los tags
+
+echo -e "<!DOCTYPE  HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//ES\" \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd\">
+<html><head>
+<meta name=\"AUTHOR\" content=\"{Trunks}\">
+<meta http-equiv=\"Content-Language\" content=\"es\">
+<meta name=\"GENERATOR\" content=\"VIM - Vi IMproved 5.7 (2000 Jun 24, compiled Jan 19 2001 08:53:38)\">
+<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">
+<title>Indice</title>
+<style type=\"text/css\" media=\"print\">
+a, a:link, a:visited { text-decoration: underline; }
+</style>
+<style type=\"text/css\" media=\"screen\">
+A:hover { background-color: yellow; color: red; }             
+</style>
+</head>
+<body background="images/dvd.jpg">
+<br><p align=\"center\"><i><u><font size=\"6\" color=\"#000080\">Índice de Películas</font></u></i></p><br><br> 
+<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"width=\"50%\">" > ~/divx/indice.htm
+
+	# Calculamos el numero de películas que contiene la base de datos 
+	# para poder crear así una página individual para cada una de ellas
+	# Además procedemos a una ordenación alfabética previa de las 
+	# películas escribiendo un nuevo archivo de datos ordenado
+
+lineas=`tail -n 1 $1 | cut -d ";" -f1`
+# lineas=`echo $lineas + 1 | bc`
+temp='/tmp/Pelis.csv'
+
+for i in `seq -s " " $lineas`
+        do Peli=`tail  -n $lineas $1 | cut -d";" -f2 | sort | head -n $i | tail -n 1 | sed 's/VERDADERO/Sí/g' | sed 's/FALSO/No/g'`
+        Peli=`cat $1 | grep ";$Peli;"`
+        echo $Peli >> $temp
+done
+
+	# Creamos las distintas variables asociadas a cada uno de los 
+	# campos de que se compone cada entrada de la Base de Datos
+
+for i in `seq -s " " $lineas` 
+	do Id=`head -n $i $temp | tail -n 1 | cut -d ";" -f1`
+	Titulo=`head -n $i $temp | tail -n 1 | cut -d ";" -f2`
+	Divx=`head -n $i $temp | tail -n 1 | cut -d ";" -f3`
+	Num=`head -n $i $temp | tail -n 1 | cut -d ";" -f4`
+	Mini=`head -n $i $temp | tail -n 1 | cut -d ";" -f5`
+	Genero=`head -n $i $temp | tail -n 1 | cut -d ";" -f6`
+	Director=`head -n $i $temp | tail -n 1 | cut -d ";" -f7`
+	Anho=`head -n $i $temp | tail -n 1 | cut -d ";" -f8`
+	Actor1=`head -n $i $temp | tail -n 1 | cut -d ";" -f9`
+	Actriz1=`head -n $i $temp | tail -n 1 | cut -d ";" -f10`
+	Actor2=`head -n $i $temp | tail -n 1 | cut -d ";" -f11`
+	Actriz2=`head -n $i $temp | tail -n 1 | cut -d ";" -f12`
+	Foto=`head -n $i $temp | tail -n 1 | cut -d ";" -f13`
+	Prestado=`head -n $i $temp | tail -n 1 | cut -d ";" -f14`
+	Deudor=`head -n $i $temp | tail -n 1 | cut -d ";" -f15`
+
+	# Comenzamos a generar páginas con los datos excluyendo la primera
+	# línea de la Base de Datos que corresponde con los 
+	# identificadores de campo
+
+if [ $Id != "Id" ]
+then
+	
+	echo -e "<!DOCTYPE  HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//ES\" \"http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd\">
+<html><head>
+<meta name=\"AUTHOR\" content=\"{Trunks}\">
+<meta http-equiv=\"Content-Language\" content=\"es\">
+<meta name=\"GENERATOR\" content=\"VIM - Vi IMproved 5.7 \(2000 Jun 24, compiled Jan 19 2001 08:53:38\)\">
+<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">
+<title>$Titulo</title>
+<style type=\"text/css\" media=\"print\">
+a, a:link, a:visited { text-decoration: underline; }
+</style>   
+<style type=\"text/css\" media=\"screen\">
+a:hover { background-color: yellow; color: red; }
+</style>
+</head>
+<body background="images/dvd.jpg">
+
+<br><table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" height=\"259\">
+  <tr>
+    <td width=\"24%\" height=\"259\">
+    <a href=\"images/$Titulo.jpg\"><img border=\"0\" src=\"images/mini$Titulo.jpg\" width=\"200\" height=\"250\" alt=\"$Titulo.jpg\"></a></td>
+    <td width=\"76%\" height=\"259\">
+    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" height=\"289\">
+      <tr>
+        <td width=\"100%\" height=\"57\" colspan=\"2\">
+        <p align=\"center\"><i><u><font size=\"6\" color=\"#000080\">$Titulo</font></u></i></p></td>
+      </tr>
+      <tr>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Género: </font><font color=\"#800080\">$Genero</font></b></td>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Actor Ppal.: </font><font color=\"#800080\">$Actor1</font></b></td>
+      </tr>
+      <tr>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Año de producción: </font><font color=\"#800080\">$Anho</font></b></td>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Actor Sec.: </font><font color=\"#800080\">$Actor2</font></b></td>
+      </tr>
+      <tr>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Director: </font><font color=\"#800080\">$Director</font></b></td>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Actriz Ppal.: </font><font color=\"#800080\">$Actriz1</font></b></td>
+      </tr>
+      <tr>
+        <td width=\"50%\" height=\"29\">&nbsp;</td>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Actriz Sec.: </font><font color=\"#800080\">$Actriz2</font></b></td>
+      </tr>
+      <tr>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Nº Cd's: </font><font color=\"#800080\">$Num</font></b></td>
+      </tr>
+      <tr>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Prestado: </font><font color=\"#800080\">`echo $Prestado | sed 's/VERDADERO/Sí/' | sed 's/FALSO/No/'`</font></b></td>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Deudor: </font><font color=\"#800080\">$Deudor</font></b></td>
+      </tr>
+      <tr>
+        <td width=\"50%\" height=\"29\"><b><font color=\"#008000\">Formato: </font><font color=\"#800080\">" > ~/divx/$i.htm 
+
+	# Análogamente a lo que hicimos antes modificamos el valor que 
+	# contienen los campos Divx y Mini por su correspondiente valor "más 
+	# estético"
+
+if [ $Divx == "Sí" -o $Divx == "VERDADERO" ]
+then echo "DiVX" >> ~/divx/$i.htm
+	if [ $Mini == "Sí" -o $Mini == "VERDADERO" ]
+	then echo -e ", MiniPeli" >> ~/divx/$i.htm
+	fi
+else if [ $Mini == "Sí" -o $Mini == "VERDADERO" ]
+	then echo -e "MiniPeli" >> ~/divx/$i.htm; fi
+fi
+
+	# De nuevo proseguimos con las generación de las páginas individuales
+
+echo -e "</font></b></td>
+
+      </tr>
+      <tr>
+      </tr>
+    </table>
+    </td>
+  </tr>
+</table>
+<br><p align=\"right\"><b><font color=\"#0000FF\">&lt;&lt; <a href=\"indice.htm\">indice.htm</a>    &lt;&lt; " >> ~/divx/$i.htm
+
+	# Aquí generamos enlaces al final de cada una de las páginas 
+	# individuales para hacer más cómoda la navegación a través del 
+	# web. Generamos un enlace "Siguiente" y "Anterior" para cada una de
+	# las páginas excluyendo la trivial incorrecta para las primera y 
+	# última página así como un enlace directo a índice en cada una de ellas
+
+if [ $i != "1" ]
+then echo -e "<a href=\"`echo $i - 1 | bc`.htm\">Anterior</a>  " >> ~/divx/$i.htm
+else echo -e "Anterior" >> ~/divx/$i.htm
+fi
+
+if [ $i != $lineas ]
+then echo -e "<a href=\"`echo $i + 1 | bc`.htm\">Siguiente</a>" >> ~/divx/$i.htm
+else echo -e "Siguiente" >> ~/divx/$i.htm
+fi
+
+	# Aquí finalizamos la generación de las páginas individuales y
+	# añadimos el título y el correspondiente identificador de la Película
+	# a la página índice
+
+echo -e " >></b></p>
+</body>
+</html>" >> ~/divx/$i.htm
+
+        echo -e "<tr><td width=\"5%\"><font color=\"#008000\">$Id </font></td><td width=\"95%\"><a href=\"$i.htm\"> <font color=\"#008000\"><b>$Titulo</b></font></a></td></tr>" >> ~/divx/indice.htm
+
+fi
+done
+
+	# Por último cerramos las etiquetas finales de la página índice
+
+echo -e "</table>
+<br><font color=\"#008000\"><i>Total Pelis:</i> <b>$lineas</b></font>
+<hr>
+<p><em>index.html creado a `date  '+%A, %d de %B de %Y a las %T'` por <a href="scripts/filmweb">filmweb script</a> -  By {Trunks}</em><br>
+    <a href=\"http://validator.w3.org/check?uri=http%3A%2F%2Ftrunksdivx.cjb.net;doctype=Inline\"><img border=\"0\" src=\"images/html40.jpg\" alt=\"Valid HTML 4.0!\" height=\"31\" width=\"88\"></a>
+    <a href=\"http://jigsaw.w3.org/css-validator/validator?uri=http://trunksdivx.cjb.net/\"><img style=\"border:0;width:88px;height:31px\" src=\"images/w3css.gif\" alt=\"Valid CSS!\"></a>
+    <a href=\"http://www.anybrowser.org/campaign/anybrowser_es.html\"><img border=\"0\"  src=\"images/anibrows.gif\" alt=\"Any Browser Campaign\"></a>
+</p>
+<hr>
+<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\"width=\"100%\">
+<tr><td width=\"33%\" align=\"center\"><img border=\"0\" alt=\"Powered By Debian\" src=\"images/debian.jpg\"></td>
+<td width=\"33%\" align=\"center\"><a href=\"http://counter.li.org/\"><img border=\"0\" src=\"images/226685.jpg\" alt=\"Linux User registered\"></a></td>
+<td width=\"33%\" align=\"center\"><img border=\"0\" alt=\"Powered By Apache\" src=\"images/apache_pb.gif\"></td>
+</table></body></html>" >> ~/divx/indice.htm
+
+rm $temp
+
+	# Esto último por si quiere usarse el índice como pagina
+	# inicial del web
+
+cp ~/divx/indice.htm  ~/divx/index.html

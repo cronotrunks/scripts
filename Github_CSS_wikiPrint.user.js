@@ -7,9 +7,10 @@
 // @grant       none
 // ==/UserScript==
 
-var link = document.createElement('LINK');
-link.rel = 'stylesheet';
-link.href = 'https://raw.github.com/eurodev/scripts/master/github.css';
-link.type = 'text/css';
-link.media = 'print';
-document.body.insertBefore(link, null);
+var style = document.createElement('STYLE');
+style.type = 'text/css';
+style.media = 'print';
+style.innerHTML = '.pagehead, #header, #footer, .gollum-minibutton, #gollum-footer, #markdown-help, #ajax-error-message, #logo-popup, #footer-push { \
+  display: none; \
+};
+document.body.insertBefore(style, null);

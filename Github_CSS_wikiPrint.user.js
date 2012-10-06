@@ -9,7 +9,7 @@
 
 var link = document.createElement('LINK');
 link.rel = 'stylesheet';
-link.href = 'http://al.quimia.net/~trunks/github.css';
+link.href = 'https://github.com/eurodev/scripts/raw/master/github.css';
 link.type = 'text/css';
 link.media = 'print';
 document.body.insertBefore(link, null);

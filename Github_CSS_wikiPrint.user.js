@@ -12,5 +12,5 @@ style.type = 'text/css';
 style.media = 'print';
 style.innerHTML = '.pagehead, #header, #footer, .gollum-minibutton, #gollum-footer, #markdown-help, #ajax-error-message, #logo-popup, #footer-push { \
   display: none; \
-};
+}';
 document.body.insertBefore(style, null);

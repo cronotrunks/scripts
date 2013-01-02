@@ -9,7 +9,7 @@ function main() {
 
   cd /var/lib/mysql
 
-  for i in *
+  for i in $(echo "SHOW DATABASES;" | mysql -u root --password=PASSWORD | tail -n +2)
     do STATUS=$(echo "SELECT status FROM system WHERE name='$1';" | mysql -u root --password=PASSWORD $i | tail -n 1)
     if [ "$STATUS" -eq 1 ]
       then echo $i

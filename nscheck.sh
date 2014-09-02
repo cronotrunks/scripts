@@ -58,12 +58,13 @@ ECHO=$(which echo)
 GREP=$(which grep)
 WC=$(which wc)
 
+
 function main() {
 
-  echo "Checking domain..."
+  $ECHO "Checking domain..."
   read WARNINGS < <(nsChecks $1)
   TOTALNS=$(echo $SERVERS | $WC -w)
-  echo -e "Amount of failures: $WARNINGS / $TOTALNS"
+  $ECHO -e "Amount of failures: $WARNINGS / $TOTALNS"
 }
 
 function nsChecks() {
@@ -76,7 +77,7 @@ function nsChecks() {
 
 function Usage() {
 
-  echo "Usage: $0 [domain-name]"
+  $ECHO "Usage: $0 [domain-name]"
   exit $?
 }
 

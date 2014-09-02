@@ -48,7 +48,7 @@
 # Hurricane Electric    74.82.42.42
 # puntCAT               109.69.8.51
 
-SERVERS="209.244.0.3 8.8.8.8 8.26.56.26 208.67.222.222 156.154.70.1 199.85.126.10 81.218.119.11 195.46.39.39 216.87.84.211 199.5.157.131 208.76.50.50 216.146.35.35 37.235.1.174 89.233.43.71 74.82.42.42 109.69.8.51"
+SERVERS="209.244.0.3 8.8.8.8 8.26.56.26 208.67.222.222 156.154.70.1 199.85.126.10 81.218.119.11 195.46.39.39 208.76.50.50 216.146.35.35 37.235.1.174 89.233.43.71 74.82.42.42"
 
 # Function declarations
 #
@@ -61,7 +61,7 @@ WC=$(which wc)
 
 function main() {
 
-  $ECHO "Checking domain..."
+  $ECHO -n "Checking domain"
   read WARNINGS < <(nsChecks $1)
   TOTALNS=$(echo $SERVERS | $WC -w)
   $ECHO -e "Amount of failures: $WARNINGS / $TOTALNS"
@@ -72,7 +72,9 @@ function nsChecks() {
   for NSSERVER in $SERVERS
   do
     $NSLOOKUP $1 $NSSERVER | $GREP -v "$NSSERVER" | $GREP "^Address" &> /dev/null && $ECHO "OK" || $ECHO "WARNING"
+    $ECHO -n "." 1>&2
   done | $GREP "WARNING" | $WC -l
+  $ECHO 1>&2
 }
 
 function Usage() {

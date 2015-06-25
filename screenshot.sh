@@ -2,7 +2,7 @@
 #
 
 # Settings
-DROPBOX_HOME=/home/trunks/
+DROPBOX_HOME=/home/trunks/Dropbox/
 
 # Private variables
 TIMESTAMP=$(date +"%Y%m%d%H%M")
@@ -35,13 +35,14 @@ function check() {
 
 function do_screenshot() {
 
-    ${SCROT} -s -e 'mv $f ~/Dropbox/Public/'${SCREENSHOT_FILE}
+    ${SCROT} -s -e 'mv $f /tmp/'${SCREENSHOT_FILE}
+    mv /tmp/${SCREENSHOT_FILE} ${DROPBOX_HOME}/Public/
 
-    while ([ "$(${DROPBOX} filestatus Dropbox/Public/${SCREENSHOT_FILE} | awk '{ print $2; }')" == "syncing" ])
+    while ([ "$(${DROPBOX} filestatus ${DROPBOX_HOME}/Public/${SCREENSHOT_FILE} | awk '{ print $2; }')" == "syncing" ])
         do sleep 1
     done
 
-    PUBLIC_URL=$(${DROPBOX} puburl Dropbox/Public/${SCREENSHOT_FILE})
+    PUBLIC_URL=$(${DROPBOX} puburl ${DROPBOX_HOME}/Public/${SCREENSHOT_FILE})
 
     ${ZENITY} --info --text="Dropbox screenshot url: ${PUBLIC_URL}"
 }

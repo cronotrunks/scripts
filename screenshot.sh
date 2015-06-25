@@ -32,11 +32,11 @@ function check() {
       echo
     fi
 
-    DROPBOX_STATUS=$(dropbox status)
+    DROPBOX_STATUS=$(${DROPBOX} status)
     if [ "${DROPBOX_STATUS}" == "Dropbox isn't running!" ]
     then
         ${ZENITY} --question --text="Dropbox must be running\n\nDo you want to launch it?"
-        [ "$?" == "0" ] && dropbox start
+        [ "$?" == "0" ] && ${DROPBOX} start
     fi
 }
 
